@@ -4,12 +4,13 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            var userInputLine = $"{Environment.UserName}:> ";
+            ConsoleWriteExtension.Write(
+                $"Enter direcrory or file path in next format: {userInputLine}[d:\\JSONExamples\\test.json] or [d:\\\\JSONExamples]", ConsoleColor.DarkYellow);
             Console.WriteLine();
 
             UserInputStringParser userInputParser = new UserInputStringParser();
 
-            var userInputLine = $"{Environment.UserName}:> ";
             var path = string.Empty;
 
             var firstTimeEnterCycle = true;
@@ -18,6 +19,7 @@
             {
                 if (firstTimeEnterCycle)
                 {
+                    ConsoleWriteExtension.Write(userInputLine, ConsoleColor.Cyan);
                     path = Console.ReadLine() + Path.DirectorySeparatorChar;
                     userInputParser.Parse(path);
 
@@ -25,8 +27,10 @@
                 }
                 else
                 {
+                    ConsoleWriteExtension.WriteLine(path, ConsoleColor.Green);
+                    ConsoleWriteExtension.Write(userInputLine, ConsoleColor.Cyan);
+                    
                     var continueInput = Console.ReadLine();
-
                     if (continueInput.StartsWith("..")) path = DirectoryAndFileInfo.GetParentDirectory(path);
                     else path = Path.Combine(path, continueInput);
 
@@ -38,6 +42,7 @@
 
                 if (pathEndingEntity == PathEndingEntityEnum.Directory)
                 {
+                    ConsoleWriteExtension.WriteLine($"Its directory [{path}]", ConsoleColor.Green);
                     firstTimeEnterCycle = false;
 
                     var listOfDirectories = DirectoryAndFileInfo.GetAllDirectories(path);
@@ -48,28 +53,32 @@
                         foreach (var dir in listOfDirectories)
                         {
                             Console.Write($"{dir.Name} ");
+                            ConsoleWriteExtension.Write($"{dir.Extension} ", ConsoleColor.Blue);
+                            ConsoleWriteExtension.Write($"[{dir.Attributes}]", ConsoleColor.DarkYellow);
                             Console.WriteLine();
                         }
 
                         foreach (var file in listOfJsonFiles)
                         {
                             Console.Write($"{file.Name} ");
+                            ConsoleWriteExtension.Write($"{file.Extension} ", ConsoleColor.Blue);
                             Console.WriteLine();
                         }
                     }
                     catch (UnauthorizedAccessException)
                     {
-
+                        ConsoleWriteExtension.WriteLine($"UnauthorizedAccessException [{path}]. Please check access", ConsoleColor.Red);
                     }
 
                     Console.WriteLine();
                 }
                 else if (pathEndingEntity == PathEndingEntityEnum.File)
                 {
-
+                    ConsoleWriteExtension.WriteLine($"Its file [{path}]", ConsoleColor.Green);
                 }
                 else
                 {
+                    ConsoleWriteExtension.WriteLine($"Directory or file does not exists [{path}]", ConsoleColor.Red);
                     userInputParser.Clear();
                     path = userInputParser.Path;
                     firstTimeEnterCycle = false;

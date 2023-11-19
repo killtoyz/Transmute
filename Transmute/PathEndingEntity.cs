@@ -1,12 +1,12 @@
-﻿public enum PathEndingEntityEnum
+﻿namespace Transmute
 {
-    File,
-    Directory,
-    NotExist
-}
+    public enum PathEndingEntityEnum
+    {
+        File,
+        Directory,
+        NotExist
+    }
 
-namespace Transmute
-{
     public static class PathEndingEntity
     {
         public static PathEndingEntityEnum CheckEndingEntity(string path)

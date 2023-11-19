@@ -6,10 +6,10 @@
         {
             var userInputLine = $"{Environment.UserName}:> ";
             ConsoleWriteExtension.Write(
-                $"Enter direcrory or file path in next format: {userInputLine}[d:\\JSONExamples\\test.json] or [d:\\\\JSONExamples]", ConsoleColor.DarkYellow);
+                $"Enter directory or file path in next format: {userInputLine}[d:\\JSONExamples\\test.json] or [d:\\\\JSONExamples]", ConsoleColor.DarkYellow);
             Console.WriteLine();
 
-            UserInputStringParser userInputParser = new UserInputStringParser();
+            var userInputParser = new UserInputStringParser();
 
             var path = string.Empty;
 

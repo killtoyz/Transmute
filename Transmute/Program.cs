@@ -31,7 +31,7 @@
                     ConsoleWriteExtension.Write(userInputLine, ConsoleColor.Cyan);
                     
                     var continueInput = Console.ReadLine();
-                    if (continueInput.StartsWith("..")) path = DirectoryAndFileInfo.GetParentDirectory(path);
+                    if (continueInput.StartsWith("..")) path = DirectoryAndFileManage.GetParentDirectory(path);
                     else path = Path.Combine(path, continueInput);
 
                     userInputParser.Parse(path);
@@ -45,8 +45,8 @@
                     ConsoleWriteExtension.WriteLine($"Its directory [{path}]", ConsoleColor.Green);
                     firstTimeEnterCycle = false;
 
-                    var listOfDirectories = DirectoryAndFileInfo.GetAllDirectories(path);
-                    var listOfJsonFiles = DirectoryAndFileInfo.GetAllFiles(path);
+                    var listOfDirectories = DirectoryAndFileManage.GetAllDirectories(path);
+                    var listOfJsonFiles = DirectoryAndFileManage.GetAllFiles(path);
 
                     try
                     {

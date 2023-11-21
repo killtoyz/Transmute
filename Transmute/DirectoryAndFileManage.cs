@@ -1,6 +1,6 @@
 ﻿namespace Transmute
 {
-    public static class DirectoryAndFileInfo
+    public static class DirectoryAndFileManage
     {
         public static string GetParentDirectory(string path) =>
             Directory.GetParent(path) is null ? path : Directory.GetParent(path).Parent.FullName;

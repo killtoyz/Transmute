@@ -10,6 +10,7 @@
         {
             get
             {
+                if (_path == null) return "";
                 if (!_path.EndsWith("\\")) return _path + System.IO.Path.DirectorySeparatorChar;
                 return _path;
             }

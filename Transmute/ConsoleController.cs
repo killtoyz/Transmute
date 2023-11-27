@@ -21,9 +21,15 @@
 
                 var line = Console.ReadLine();
                 _userInputStringParser.Parse(line);
-                var pathEndingEntity = PathEndingEntity.CheckEndingEntity(_userInputStringParser.Path);
+                
+                if (VerifyPath(_userInputStringParser.Path))
+                {
+                    ConsoleWriteExtension.WriteLine($"Path does not exist [{_userInputStringParser.Path}]", ConsoleColor.Red);
+                    _userInputStringParser.Clear();
+                    continue;
+                }
 
-                InstructionHandler instructionHandler = new InstructionHandler(_userInputStringParser.Commands);
+                var instructionHandler = new InstructionHandler(_userInputStringParser.Commands);
                 instructionHandler.ProcessInstructions(_userInputStringParser.Path);
             }
         }
@@ -34,5 +40,7 @@
                 $"Enter directory or file path in next format: {_userInputLine}[d:\\JSONExamples\\test.json] or [d:\\\\JSONExamples]", ConsoleColor.DarkYellow);
             Console.WriteLine();
         }
+
+        private bool VerifyPath(string path) => PathEndingEntity.CheckEndingEntity(path) == PathEndingEntityEnum.NotExist;
     }
 }

@@ -37,7 +37,10 @@
         private void InitMainInstruction()
         {
             ConsoleWriteExtension.Write(
-                $"Enter directory or file path in next format: {_userInputLine}[d:\\JSONExamples\\test.json] or [d:\\\\JSONExamples]", ConsoleColor.DarkYellow);
+                $"Enter directory or file path in next format: {_userInputLine}[d:\\JSONExamples\\test.json] or [d:\\\\JSONExamples] " +
+                $"\nor just any folder name if you are inside disk already" + 
+                "\nCommands: \n'-a' - get all directories \n'-j' - get only JSON files \n'-p' - print all files and dirs" +
+                "\nFull input can be like this chain - [d:] then [JSONExamples -j -p]", ConsoleColor.DarkYellow);
             Console.WriteLine();
         }
 

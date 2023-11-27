@@ -2,8 +2,8 @@
 {
     public static class DirectoryAndFileManage
     {
-        public static string GetParentDirectory(string path) =>
-            Directory.GetParent(path) is null ? path : Directory.GetParent(path).Parent.FullName;
+        public static string GetParentDirectory(string path) => 
+            Directory.GetParent(path) is null ? path : Directory.GetParent(path).FullName;
 
         public static IEnumerable<DirectoryInfo> GetAllDirectories(string path) =>
             Directory.EnumerateDirectories(path)

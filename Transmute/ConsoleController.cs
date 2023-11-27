@@ -16,9 +16,21 @@
 
             while (true)
             {
-                var instructions = GetInstructions();
-                var pathEndingEntity = PathEndingEntity.CheckEndingEntity(instructions);
-                SolveInstructions(pathEndingEntity, instructions);
+                ConsoleWriteExtension.WriteLine(_userInputStringParser.Path, ConsoleColor.Green);
+                ConsoleWriteExtension.Write(_userInputLine, ConsoleColor.Cyan);
+
+                var line = Console.ReadLine();
+                _userInputStringParser.Parse(line);
+                
+                if (VerifyPath(_userInputStringParser.Path))
+                {
+                    ConsoleWriteExtension.WriteLine($"Path does not exist [{_userInputStringParser.Path}]", ConsoleColor.Red);
+                    _userInputStringParser.Clear();
+                    continue;
+                }
+
+                var instructionHandler = new InstructionHandler(_userInputStringParser.Commands);
+                instructionHandler.ProcessInstructions(_userInputStringParser.Path);
             }
         }
 
@@ -29,65 +41,6 @@
             Console.WriteLine();
         }
 
-        private string GetInstructions()
-        {
-            var path = _userInputStringParser.Path;
-            ConsoleWriteExtension.WriteLine(path, ConsoleColor.Green);
-            ConsoleWriteExtension.Write(_userInputLine, ConsoleColor.Cyan);
-
-            var continueInput = Console.ReadLine();
-            if (continueInput.StartsWith("..")) path = DirectoryAndFileManage.GetParentDirectory(path);
-            else path = Path.Combine(path, continueInput);
-
-            _userInputStringParser.Parse(path);
-            path = _userInputStringParser.Path;
-
-            return path;
-        }
-
-        private void SolveInstructions(PathEndingEntityEnum pathEndingEntity, string instructions)
-        {
-            if (pathEndingEntity == PathEndingEntityEnum.Directory)
-            {
-                ConsoleWriteExtension.WriteLine($"Its directory [{instructions}]", ConsoleColor.Green);
-
-                var listOfDirectories = DirectoryAndFileManage.GetAllDirectories(instructions);
-                var listOfJsonFiles = DirectoryAndFileManage.GetAllFiles(instructions);
-
-                try
-                {
-                    foreach (var dir in listOfDirectories)
-                    {
-                        Console.Write($"{dir.Name} ");
-                        ConsoleWriteExtension.Write($"{dir.Extension} ", ConsoleColor.Blue);
-                        ConsoleWriteExtension.Write($"[{dir.Attributes}]", ConsoleColor.DarkYellow);
-                        Console.WriteLine();
-                    }
-
-                    foreach (var file in listOfJsonFiles)
-                    {
-                        Console.Write($"{file.Name} ");
-                        ConsoleWriteExtension.Write($"{file.Extension} ", ConsoleColor.Blue);
-                        Console.WriteLine();
-                    }
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    ConsoleWriteExtension.WriteLine($"UnauthorizedAccessException [{instructions}]. Please check access", ConsoleColor.Red);
-                }
-
-                Console.WriteLine();
-            }
-            else if (pathEndingEntity == PathEndingEntityEnum.File)
-            {
-                ConsoleWriteExtension.WriteLine($"Its file [{instructions}]", ConsoleColor.Green);
-            }
-            else
-            {
-                ConsoleWriteExtension.WriteLine($"Directory or file does not exists [{instructions}]", ConsoleColor.Red);
-                _userInputStringParser.Clear();
-                instructions = _userInputStringParser.Path;
-            }
-        }
+        private bool VerifyPath(string path) => PathEndingEntity.CheckEndingEntity(path) == PathEndingEntityEnum.NotExist;
     }
 }

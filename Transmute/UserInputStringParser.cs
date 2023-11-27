@@ -31,8 +31,11 @@
             var parts = input.Split(separators).ToList();
             UserPreviousCommand = string.Join(' ', parts);
 
-            Path = parts[0];
-            parts.RemoveAt(0);
+            if (!parts[0].StartsWith('-'))
+            {
+                Path = parts[0];
+                parts.RemoveAt(0);
+            }
 
             Commands = parts.ToArray();
         }

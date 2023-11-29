@@ -26,9 +26,13 @@
                 {
                     PrintInstruction(entities);
                 }
+                else if (command == "-c")
+                {
+                    var resultPath = PrepareResultDirectory(path);
+                    ConvertingJsonAsTxt(entities, resultPath);
+                }
             }
         }
-
         private void PrintInstruction(IEnumerable<DirectoryInfo> listOfEntities)
         {
             try
@@ -47,6 +51,23 @@
             }
 
             Console.WriteLine();
+        }
+
+        private string PrepareResultDirectory(string path)
+        {
+            var newDirPath = Path.Combine(path, "Result");
+            Directory.CreateDirectory(newDirPath);
+            return newDirPath;
+        }
+
+        private void ConvertingJsonAsTxt(IEnumerable<DirectoryInfo> entities, string resultPath)
+        {
+            foreach(var entity in entities)
+            {
+                string jsonInput = File.ReadAllText(entity.FullName);
+                var resultFilePath = Path.Combine(resultPath, $"{Path.GetFileNameWithoutExtension(entity.FullName)}.txt");
+                File.WriteAllText(resultFilePath, jsonInput);
+            }
         }
     }
 }

@@ -1,4 +1,9 @@
-﻿namespace Transmute
+﻿using Newtonsoft.Json;
+using System.Data;
+using DataTable = System.Data.DataTable;
+using ClosedXML.Excel;
+
+namespace Transmute
 {
     public class InstructionHandler
     {
@@ -14,22 +19,24 @@
 
             foreach (var command in _commands)
             {
-                if (command == "-a")
+                switch (command)
                 {
-                    entities = DirectoryAndFileManage.GetAllDirectories(path);
-                }
-                else if (command == "-j")
-                {
-                    entities = DirectoryAndFileManage.GetAllFiles(path);
-                }
-                else if (command == "-p")
-                {
-                    PrintInstruction(entities);
-                }
-                else if (command == "-c")
-                {
-                    var resultPath = PrepareResultDirectory(path);
-                    ConvertingJsonAsTxt(entities, resultPath);
+                    case "-a":
+                        entities = DirectoryAndFileManage.GetAllDirectories(path);
+                        break;
+                    case "-j":
+                        entities = DirectoryAndFileManage.GetAllFiles(path);
+                        break;
+                    case "-p":
+                        PrintInstruction(entities);
+                        break;
+                    case "-c":
+                    {
+                        var resultPath = PrepareResultDirectory(path);
+                        ConvertingJsonAsTxt(entities, resultPath);
+                        ConvertingJsonAsXlsx(entities, resultPath);
+                        break;
+                    }
                 }
             }
         }
@@ -67,6 +74,35 @@
                 string jsonInput = File.ReadAllText(entity.FullName);
                 var resultFilePath = Path.Combine(resultPath, $"{Path.GetFileNameWithoutExtension(entity.FullName)}.txt");
                 File.WriteAllText(resultFilePath, jsonInput);
+            }
+        }
+
+        private void ConvertingJsonAsXlsx(IEnumerable<DirectoryInfo> entities, string resultPath)
+        {
+            foreach(var entity in entities)
+            {
+                var jsonInput = File.ReadAllText(entity.FullName);
+                var resultFilePath = Path.Combine(resultPath, $"{Path.GetFileNameWithoutExtension(entity.FullName)}.xlsx");
+
+                var dt = (DataTable)JsonConvert.DeserializeObject(jsonInput, (typeof(DataTable)));
+
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("R1");
+
+                    for(var i = 1; i <= dt.Columns.Count; i++)
+                        worksheet.Cell(1,i).Value = XLCellValue.FromObject(dt.Columns[i - 1].ColumnName);
+
+                    var rowsValues = dt.AsEnumerable()
+                        .Select(row => row.ItemArray)
+                        .ToList();
+
+                    for (var row = 2; row < rowsValues.Count + 2; row++)
+                        for (var column = 1; column <= dt.Columns.Count; column++)
+                            worksheet.Cell(row, column).Value = XLCellValue.FromObject(rowsValues[row - 2][column - 1]);
+
+                    workbook.SaveAs(resultFilePath);
+                }
             }
         }
     }

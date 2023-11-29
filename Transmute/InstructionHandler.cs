@@ -30,11 +30,22 @@ namespace Transmute
                     case "-p":
                         PrintInstruction(entities);
                         break;
-                    case "-c":
+                    case "-ct":
                     {
-                        var resultPath = PrepareResultDirectory(path);
-                        ConvertingJsonAsTxt(entities, resultPath);
-                        ConvertingJsonAsXlsx(entities, resultPath);
+                        var resultPath = PrepareResultDirectory(path, "TxtResult");
+                        ConvertingJsonToTxtMultipleFiles(entities, resultPath);
+                        break;
+                    }
+                    case "-cjm":
+                    {
+                        var resultPath = PrepareResultDirectory(path, "XlxsResult");
+                        ConvertJsonToXlsxMultipleFiles(entities, resultPath);
+                        break;
+                    }
+                    case "-cjo":
+                    {
+                        var resultPath = PrepareResultDirectory(path, "XlxsResult");
+                        ConvertJsonToXlsxOneFile(entities, resultPath);
                         break;
                     }
                 }
@@ -60,14 +71,14 @@ namespace Transmute
             Console.WriteLine();
         }
 
-        private string PrepareResultDirectory(string path)
+        private string PrepareResultDirectory(string path, string resFolder)
         {
-            var newDirPath = Path.Combine(path, "Result");
+            var newDirPath = Path.Combine(path, resFolder);
             Directory.CreateDirectory(newDirPath);
             return newDirPath;
         }
 
-        private void ConvertingJsonAsTxt(IEnumerable<DirectoryInfo> entities, string resultPath)
+        private void ConvertingJsonToTxtMultipleFiles(IEnumerable<DirectoryInfo> entities, string resultPath)
         {
             foreach(var entity in entities)
             {
@@ -77,33 +88,84 @@ namespace Transmute
             }
         }
 
-        private void ConvertingJsonAsXlsx(IEnumerable<DirectoryInfo> entities, string resultPath)
+        private void ConvertJsonToXlsxMultipleFiles(IEnumerable<DirectoryInfo> entities, string resultPath)
         {
-            foreach(var entity in entities)
+            foreach (var entity in entities)
             {
-                var jsonInput = File.ReadAllText(entity.FullName);
                 var resultFilePath = Path.Combine(resultPath, $"{Path.GetFileNameWithoutExtension(entity.FullName)}.xlsx");
-
-                var dt = (DataTable)JsonConvert.DeserializeObject(jsonInput, (typeof(DataTable)));
+                var dt = DeserializeEntityAsDataTable(entity);
 
                 using (var workbook = new XLWorkbook())
                 {
                     var worksheet = workbook.Worksheets.Add("R1");
-
-                    for(var i = 1; i <= dt.Columns.Count; i++)
-                        worksheet.Cell(1,i).Value = XLCellValue.FromObject(dt.Columns[i - 1].ColumnName);
+                    FillWorksheetHeader(dt, worksheet);
 
                     var rowsValues = dt.AsEnumerable()
                         .Select(row => row.ItemArray)
                         .ToList();
 
                     for (var row = 2; row < rowsValues.Count + 2; row++)
-                        for (var column = 1; column <= dt.Columns.Count; column++)
-                            worksheet.Cell(row, column).Value = XLCellValue.FromObject(rowsValues[row - 2][column - 1]);
+                    for (var column = 1; column <= dt.Columns.Count; column++)
+                        worksheet.Cell(row, column).Value = XLCellValue.FromObject(rowsValues[row - 2][column - 1]);
 
+                    worksheet.Columns().AdjustToContents();
                     workbook.SaveAs(resultFilePath);
                 }
             }
+        }
+
+        private void ConvertJsonToXlsxOneFile(IEnumerable<DirectoryInfo> entities, string resultPath)
+        {
+            bool firstIteration = true;
+            var resultFilePath = Path.Combine(resultPath, "OneFileResult.xlsx");
+            var rowCount = 2;
+            var columnCount = 1;
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("R1");
+
+                foreach (var entity in entities)
+                {
+                    var dt = DeserializeEntityAsDataTable(entity);
+                    if (firstIteration)
+                    {
+                        FillWorksheetHeader(dt, worksheet);
+                        firstIteration = false;
+                    }
+
+                    var rowsValues = dt.AsEnumerable()
+                        .Select(row => row.ItemArray)
+                        .ToList();
+
+                    foreach(var row in rowsValues)
+                    {
+                        foreach(var value in row)
+                        {
+                            worksheet.Cell(rowCount, columnCount).Value = XLCellValue.FromObject(value);
+                            columnCount++;  
+                        }
+
+                        rowCount++;
+                        columnCount = 1;
+                    }
+                }
+
+                worksheet.Columns().AdjustToContents();
+                workbook.SaveAs(resultFilePath);
+            }
+        }
+
+        private DataTable DeserializeEntityAsDataTable(DirectoryInfo jsonFile)
+        {
+            var jsonInput = File.ReadAllText(jsonFile.FullName);
+            return (DataTable)JsonConvert.DeserializeObject(jsonInput, typeof(DataTable));
+        }
+
+        private void FillWorksheetHeader(DataTable dt, IXLWorksheet worksheet)
+        {
+            for (var i = 1; i <= dt.Columns.Count; i++)
+                worksheet.Cell(1, i).Value = XLCellValue.FromObject(dt.Columns[i - 1].ColumnName);
         }
     }
 }

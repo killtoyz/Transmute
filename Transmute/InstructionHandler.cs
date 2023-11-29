@@ -30,7 +30,7 @@ namespace Transmute
                     case "-p":
                         PrintInstruction(entities);
                         break;
-                    case "-ct":
+                    case "-ctm":
                     {
                         var resultPath = PrepareResultDirectory(path, "TxtResult");
                         ConvertingJsonToTxtMultipleFiles(entities, resultPath);

@@ -1,4 +1,6 @@
-﻿namespace Transmute
+﻿using Transmute.Structure;
+
+namespace Transmute
 {
     internal class Program
     {

@@ -1,10 +1,12 @@
-﻿namespace Transmute
+﻿using Transmute.InstructionsHandler;
+
+namespace Transmute.Structure
 {
     public class ConsoleController
     {
         public ConsoleController(UserInputStringParser userInputStringParser)
         {
-            this._userInputStringParser = userInputStringParser;
+            _userInputStringParser = userInputStringParser;
         }
 
         private readonly UserInputStringParser _userInputStringParser;
@@ -21,7 +23,7 @@
 
                 var line = Console.ReadLine();
                 _userInputStringParser.Parse(line);
-                
+
                 if (VerifyPath(_userInputStringParser.Path))
                 {
                     ConsoleWriteExtension.WriteLine($"Path does not exist [{_userInputStringParser.Path}]", ConsoleColor.Red);
@@ -29,8 +31,8 @@
                     continue;
                 }
 
-                var instructionHandler = new InstructionHandler(_userInputStringParser.Commands);
-                instructionHandler.ProcessInstructions(_userInputStringParser.Path);
+                var instructionHandler = new InstructionHandler();
+                instructionHandler.Process(_userInputStringParser.Path, _userInputStringParser.Commands);
             }
         }
 
@@ -38,7 +40,7 @@
         {
             ConsoleWriteExtension.Write(
                 $"Enter directory or file path in next format: {_userInputLine}[d:\\JSONExamples\\test.json] or [d:\\\\JSONExamples] " +
-                $"\nor just any folder name if you are inside disk already" + 
+                $"\nor just any folder name if you are inside disk already" +
                 "\nCommands: \n'-a' - get all directories \n'-j' - get only JSON files \n'-p' - print all files and dirs " +
                 "\n'-ctm' - convert all files to txt files \n'-cjm' - convert all json files to xlsx one by one \n'-cjo' - convert all json files to one xlsx file" +
                 "\nFull input can be like this chain - [d:] then [JSONExamples -j -p]" +

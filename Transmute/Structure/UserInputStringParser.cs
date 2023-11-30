@@ -1,4 +1,4 @@
-﻿namespace Transmute
+﻿namespace Transmute.Structure
 {
     public class UserInputStringParser
     {

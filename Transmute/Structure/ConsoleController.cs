@@ -32,7 +32,8 @@ namespace Transmute.Structure
                 }
 
                 var instructionHandler = new InstructionHandler();
-                instructionHandler.Process(_userInputStringParser.Path, _userInputStringParser.Commands);
+                var task = instructionHandler.Process(_userInputStringParser.Path, _userInputStringParser.Commands);
+                task.Wait();
             }
         }
 

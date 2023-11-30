@@ -2,6 +2,6 @@
 {
     public interface IInstructionsHandler
     {
-        void Process(string path, string[] instructions);
+        Task Process(string path, string[] instructions);
     }
 }

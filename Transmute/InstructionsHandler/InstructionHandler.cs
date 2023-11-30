@@ -6,7 +6,7 @@ namespace Transmute.InstructionsHandler
 {
     public class InstructionHandler : IInstructionsHandler
     {
-        public void Process(string path, string[] instructions)
+        public async Task Process(string path, string[] instructions)
         {
             IEnumerable<DirectoryInfo> entities = new List<DirectoryInfo>();
             IInstruction instruction;
@@ -16,26 +16,22 @@ namespace Transmute.InstructionsHandler
                 switch (inst)
                 {
                     case "-a":
-                        entities = DirectoryAndFileManage.GetAllDirectories(path);
+                        entities = await Task.Run(() => DirectoryAndFileManage.GetAllDirectories(path));
                         break;
                     case "-j":
-                        entities = DirectoryAndFileManage.GetJsonFiles(path);
+                        entities = await Task.Run(() => DirectoryAndFileManage.GetJsonFiles(path));
                         break;
                     case "-p":
-                        instruction = new PrintInstruction();
-                        instruction.Execute(entities);
+                        await Task.Run(() => { instruction = new PrintInstruction(); instruction.Execute(entities); });
                         break;
                     case "-ctm":
-                        instruction = new TxtMultipleConvertInstruction(path);
-                        instruction.Execute(entities);
+                        Task.Run(() => { instruction = new TxtMultipleConvertInstruction(path); instruction.Execute(entities); }).ConfigureAwait(false);
                         break;
                     case "-cjm":
-                        instruction = new XlsxMultipleConvertInstruction(path);
-                        instruction.Execute(entities);
+                        Task.Run(() => { instruction = new XlsxMultipleConvertInstruction(path); instruction.Execute(entities); }).ConfigureAwait(false);
                         break;
                     case "-cjo":
-                        instruction = new XlsxOverallConvertInstruction(path);
-                        instruction.Execute(entities);
+                        Task.Run(() => { instruction = new XlsxOverallConvertInstruction(path); instruction.Execute(entities); }).ConfigureAwait(false);
                         break;
                 }
             }

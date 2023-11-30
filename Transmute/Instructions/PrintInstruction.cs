@@ -20,8 +20,6 @@ namespace Transmute.Instructions
             {
                 ConsoleWriteExtension.WriteLine($"UnauthorizedAccessException. Please check access to this file or folder", ConsoleColor.Red);
             }
-
-            Console.WriteLine();
         }
     }
 }
